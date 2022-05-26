@@ -11,7 +11,6 @@ import CrossIcon from '../assets/svg/CrossIcon';
 import DotIcon from '../assets/svg/DotIcon';
 import { data,filterData } from '../constants/data';
 import { globalStyle } from '../styles/global';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const ToDoList = () => {
@@ -22,18 +21,7 @@ const ToDoList = () => {
     const [filter,setFilter] = useState("All");
     const [keyboardShow, setKeyboardShow] = useState();
 
-
-    // const storeData = async (value) => {
-    //     try {
-    //       const jsonValue = JSON.stringify(value)
-    //       await AsyncStorage.setItem('listData', jsonValue)
-    //     } catch (e) {
-    //       console.log("while storing data",e)
-    //     }
-    //   }
-
     useEffect(() => {
-        // storeData(list)
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
