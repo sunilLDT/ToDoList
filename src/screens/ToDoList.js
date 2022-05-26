@@ -11,7 +11,7 @@ import CrossIcon from '../assets/svg/CrossIcon';
 import DotIcon from '../assets/svg/DotIcon';
 import { data,filterData } from '../constants/data';
 import { globalStyle } from '../styles/global';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const ToDoList = () => {
@@ -19,20 +19,21 @@ const ToDoList = () => {
     const [placeholderText,setPlaceholderText] = useState('Search ...');
     const [isSearch,setIsSearch] = useState(true)
     const [list,setList] = useState(data);
-    const [filter,setFilter] = useState(filterData);
+    const [filter,setFilter] = useState("All");
     const [keyboardShow, setKeyboardShow] = useState();
 
-    const storeData = async (value) => {
-        try {
-          const jsonValue = JSON.stringify(value)
-          await AsyncStorage.setItem('listData', jsonValue)
-        } catch (e) {
-          console.log("while storing data",e)
-        }
-      }
+
+    // const storeData = async (value) => {
+    //     try {
+    //       const jsonValue = JSON.stringify(value)
+    //       await AsyncStorage.setItem('listData', jsonValue)
+    //     } catch (e) {
+    //       console.log("while storing data",e)
+    //     }
+    //   }
 
     useEffect(() => {
-        storeData(list)
+        // storeData(list)
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
@@ -73,14 +74,17 @@ const ToDoList = () => {
         }
     }
 
-    const handleSearchInput =(query)=>{
-        if(searchedData === ""){
-            setList(list)
-        }
+    const handleSearchInput = async (query)=>{
         setSearchedData(query)
-        const copyOfTodos = cloneDeep(list)
-        const filteredToDos = copyOfTodos.filter(({value})=>value.toLowerCase().includes(query.toLowerCase()))
-        setList(filteredToDos)
+        if(query != ""){
+            const copyOfTodos = cloneDeep(list)
+            const filteredToDos = copyOfTodos.filter(({value})=>value.toLowerCase().includes(query.toLowerCase()))
+            setList(filteredToDos)
+        }else{
+            // const copyOfTodos = cloneDeep(list)
+            // setList(copyOfTodos)
+        }
+        
     }
 
     const addToDoList = () => {
@@ -104,7 +108,7 @@ const ToDoList = () => {
                 isCompleted:false,
             }
             if(payload){
-                setList([...list,payload])
+                setList([payload,...list])
                 setPlaceholderText('Search ...')
                 setIsSearch(true)
                 setSearchedData('')
@@ -112,43 +116,21 @@ const ToDoList = () => {
         }
     }
 
-    const applyFilter = async (id) => {
-        try{
-            let newArr = [...filter]; 
-            newArr[id].isSelected = true; 
-            newArr.forEach((each,index) => {
-                if(each.id == id){
-                    newArr[id].isSelected = true; 
-                }else{
-                    newArr[index].isSelected = false;
-                }
-            })
-            setFilter(newArr);
-            let compArray = [];
-            if(id == 1){
-                list.forEach((items) => {
-                    if(items.isCompleted == true){
-                        compArray.push(items)
-                    }
-                })
-                setList(compArray)
-            }else if(id == 2){
-                list.forEach((items) => {
-                    if(items.isCompleted == false){
-                        compArray.push(items)
-                    }
-                })
-                setList(compArray)
-            }else{
-                const jsonValue = await AsyncStorage.getItem('listData')
-                const value = JSON.parse(jsonValue)
-                setList(value)
+    let arrayForRender = [];
+    if (filter == "Remaining"){
+        list.forEach((items) => {
+            if(items.isCompleted == false){
+                arrayForRender.push(items)
             }
-        }catch(e){
-            console.log("while applying filetr ",e)
-        }
-
-    }
+        })
+    }else if(filter == "Completed"){
+        list.forEach((items) => {
+            if(items.isCompleted == true){
+                arrayForRender.push(items)
+            }
+        })
+    }   
+    const finalToDoList  = arrayForRender.length < 1?list:arrayForRender;
 
     return(
         <View style={styles.container}>
@@ -160,7 +142,8 @@ const ToDoList = () => {
                 addToDo={addNewToDo}
                 keyboardShow={keyboardShow}
             />
-            {Array.isArray(list) && list?.map((each,index) => {
+
+            {finalToDoList?.map((each,index) => {
                 return(
                     <View key={index} style={styles.listContainer}>
                         <Check 
@@ -189,15 +172,18 @@ const ToDoList = () => {
                     
                     <Text style={[styles.toDoCount,globalStyle.fontDetails]}>{list.length} items</Text>
                     <View style={styles.filterContainer}>
-                        {filter.map((each,index) => {
+                        {filterData.map((each,index) => {
                             return(
                                 <View key={index}>
-                                    <TouchableOpacity style={{borderRightWidth:index == 2?0:1,borderRightColor:index == 2?colors.primary:''}} onPress={() => applyFilter(each.id)}>
+                                    <TouchableOpacity 
+                                        style={{borderRightWidth:index == 2?0:1,borderRightColor:index == 2?colors.primary:''}} 
+                                        onPress={() => setFilter(each.name)}
+                                    >
                                         <Text style={[styles.filterText,globalStyle.fontDetails]}>{each.name}</Text>
                                     </TouchableOpacity>
 
                                     <View style={styles.selectedIcon}>
-                                        {each.isSelected === true?<DotIcon/>:null}
+                                        {each.name === filter?<DotIcon/>:null}
                                     </View>
                                 </View>
                             )
