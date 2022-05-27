@@ -157,7 +157,7 @@ const ToDoList = () => {
                         </TouchableOpacity>
                     )}
                     
-                    <Text style={[styles.toDoCount,globalStyle.fontDetails]}>{list.length} items</Text>
+                    <Text style={[styles.toDoCount,globalStyle.fontDetails]}>{finalToDoList.length} items</Text>
                     <View style={styles.filterContainer}>
                         {filterData.map((each,index) => {
                             return(
