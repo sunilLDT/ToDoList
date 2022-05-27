@@ -20,7 +20,8 @@ const ToDoList = () => {
     const [list,setList] = useState(data);
     const [filter,setFilter] = useState("All");
     const [keyboardShow, setKeyboardShow] = useState();
-
+    let arrayForRender = [];
+    
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
@@ -62,17 +63,15 @@ const ToDoList = () => {
         }
     }
 
-    const handleSearchInput = async (query)=>{
+    const handleSearchInput = async (query) => {
         setSearchedData(query)
         if(query != ""){
             const copyOfTodos = cloneDeep(list)
             const filteredToDos = copyOfTodos.filter(({value})=>value.toLowerCase().includes(query.toLowerCase()))
             setList(filteredToDos)
         }else{
-            // const copyOfTodos = cloneDeep(list)
-            // setList(copyOfTodos)
+            setList(data)
         }
-        
     }
 
     const addToDoList = () => {
@@ -100,11 +99,11 @@ const ToDoList = () => {
                 setPlaceholderText('Search ...')
                 setIsSearch(true)
                 setSearchedData('')
+                data.unshift(payload)
             }
         }
     }
 
-    let arrayForRender = [];
     if (filter == "Remaining"){
         list.forEach((items) => {
             if(items.isCompleted == false){
@@ -118,7 +117,7 @@ const ToDoList = () => {
             }
         })
     }   
-    const finalToDoList  = arrayForRender.length < 1?list:arrayForRender;
+    const finalToDoList  = arrayForRender.length < 1?list: arrayForRender;
 
     return(
         <View style={styles.container}>
